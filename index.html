@@ -1,135 +1,154 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Linux Command Explainer</title>
-  <script src="https://cdn.jsdelivr.net/npm/react@18.2.0/umd/react.development.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/react-dom@18.2.0/umd/react-dom.development.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/babel-standalone@7.24.7/babel.min.js"></script>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex items-center justify-center">
-  <div id="root"></div>
-  <script type="text/babel">
-    console.log("Loading React app..."); // Debug: Confirm script runs
-    const commandData = {
-      chsh: {
-        name: "chsh",
-        description: "Change the user's default login shell.",
-        analogy: "Switching your shell with chsh is like changing the key you use to unlock your house—it alters how you access and interact with your system's environment.",
-        options: [
-          { flag: "-s", description: "Specify theProvides an analogy-based explanation and lists options/arguments for Linux commands new shell (e.g., /bin/zsh)." },
-          { flag: "-l", description: "List available shells from /etc/shells." },
-          { flag: "-u", description: "Display help message and exit." },
-          { flag: "-v", description: "Display version information and exit." }
-        ],
-        arguments: [
-          { name: "[username]", description: "Optional: Specify the user whose shell is to be changed (requires root privileges)." }
-        ]
-      },
-      ls: {
-        name: "ls",
-        description: "List directory contents.",
-        analogy: "Running ls is like opening a drawer to see all the files inside—it shows you what’s in your current directory at a glance.",
-        options: [
-          { flag: "-l", description: "Use a long listing format." },
-          { flag: "-a", description: "Include hidden files." },
-          { flag: "-h", description: "Show file sizes in human-readable format." }
-        ],
-        arguments: [
-          { name: "[dir]", description: "Optional: Directory to list." }
-        ]
-      },
-      grep: {
-        name: "grep",
-        description: "Search for patterns in files.",
-        analogy: "Using grep is like using a metal detector to find specific treasures in a field—it scans through text to locate matching patterns.",
-        options: [
-          { flag: "-i", description: "Ignore case distinctions." },
-          { flag: "-r", description: "Recursively search directories." },
-          { flag: "-v", description: "Invert match, show non-matching lines." }
-        ],
-        arguments: [
-          { name: "pattern", description: "The pattern to search for." },
-          { name: "file", description: "The file(s) to search in." }
-        ]
-      },
-      mv: {
-        name: "mv",
-        description: "Move or rename files and directories.",
-        analogy: "Using mv is like moving a book from one shelf to another or renaming it—it relocates or rebrands your files.",
-        options: [
-          { flag: "-i", description: "Prompt before overwriting." },
-          { flag: "-f", description: "Force overwrite without prompting." },
-          { flag: "-v", description: "Verbose, show files being moved." }
-        ],
-        arguments: [
-          { name: "source", description: "The file or directory to move." },
-          { name: "destination", description: "The target location or new name." }
-        ]
+```javascript
+import React, { useState } from 'react';
+import './index.css';
+
+const commandData = {
+  chsh: {
+    name: 'chsh',
+    description: 'Change the user\'s default login shell.',
+    analogy: 'Switching your shell with chsh is like changing the key you use to unlock your house—it alters how you access and interact with your system\'s environment.',
+    options: [
+      { flag: '-s', description: 'Specify the new shell (e.g., /bin/zsh).' },
+      { flag: '-l', description: 'List available shells from /etc/shells.' },
+      { flag: '-u', description: 'Display help message and exit.' },
+      { flag: '-v', description: 'Display version information and exit.' },
+    ],
+    arguments: [
+      { name: '[username]', description: 'Optional: Specify the user whose shell is to be changed (requires root privileges).' },
+    ],
+  },
+  ls: {
+    name: 'ls',
+    description: 'List directory contents.',
+    analogy: 'Running ls is like opening a drawer to see all the files inside—it shows you what’s in your current directory at a glance.',
+    options: [
+      { flag: '-l', description: 'Use a long listing format.' },
+      { flag: '-a', description: 'Include hidden files.' },
+      { flag: '-h', description: 'Show file sizes in human-readable format.' },
+    ],
+    arguments: [
+      { name: '[dir]', description: 'Optional: Directory to list.' },
+    ],
+  },
+  grep: {
+    name: 'grep',
+    description: 'Search for patterns in files.',
+    analogy: 'Using grep is like using a metal detector to find specific treasures in a field—it scans through text to locate matching patterns.',
+    options: [
+      { flag: '-i', description: 'Ignore case distinctions.' },
+      { flag: '-r', description: 'Recursively search directories.' },
+      { flag: '-v', description: 'Invert match, show non-matching lines.' },
+    ],
+    arguments: [
+      { name: 'pattern', description: 'The pattern to search for.' },
+      { name: 'file', description: 'The file(s) to search in.' },
+    ],
+  },
+  mv: {
+    name: 'mv',
+    description: 'Move or rename files and directories.',
+    analogy: 'Using mv is like moving a book from one shelf to another or renaming it—it relocates or rebrands your files.',
+    options: [
+      { flag: '-i', description: 'Prompt before overwriting.' },
+      { flag: '-f', description: 'Force overwrite without prompting.' },
+      { flag: '-v', description: 'Verbose, show files being moved.' },
+    ],
+    arguments: [
+      { name: 'source', description: 'The file or directory to move.' },
+      { name: 'destination', description: 'The target location or new name.' },
+    ],
+  },
+};
+
+function App() {
+  const [command, setCommand] = useState('');
+  const [result, setResult] = useState(null);
+  const [error, setError] = useState(null);
+
+  const handleSubmit = () => {
+    try {
+      console.log('Processing command:', command);
+      const cmd = command.toLowerCase().trim();
+      if (!cmd) {
+        setError('Please enter a command.');
+        setResult(null);
+        return;
       }
-    };
+      setError(null);
+      setResult(commandData[cmd] || {
+        name: cmd,
+        description: 'Command not found in database. Try another Linux command.',
+        analogy: '',
+        options: [],
+        arguments: [],
+      });
+    } catch (err) {
+      console.error('Error in App:', err);
+      setError('An error occurred while processing the command.');
+    }
+  };
 
-    function App() {
-      const [command, setCommand] = React.useState("");
-      const [result, setResult] = React.useState(null);
-      const [error, setError] = React.useState(null);
-
-      const handleSubmit = () => {
-        try {
-          console.log("Processing command:", command); // Debug: Track input
-          const cmd = command.toLowerCase().trim();
-          if (!cmd) {
-            setError("Please enter a command.");
-            setResult(null);
-            return;
-          }
-          setError(null);
-          setResult(commandData[cmd] || {
-            name: cmd,
-            description: "Command not found in database. Try another Linux command.",
-            analogy: "",
-            options: [],
-            arguments: []
-          });
-        } catch (err) {
-          console.error("Error in App:", err); // Debug: Catch errors
-          setError("An error occurred while processing the command.");
-        }
-      };
-
-      return (
-        <div className="max-w-3xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
-          <h1 className="text-3xl font-bold mb-6 text-center">Linux Command Explainer</h1>
-          <div className="mb-6">
-            <input
-              type="text"
-              value={command}
-              onChange={(e) => setCommand(e.target.value)}
-              placeholder="Enter a Linux command (e.g., chsh, ls, grep)"
-              className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 focus:outline-none focus:ring-2 focus personally:ring-blue-500"
-            />
-            <button
-              onClick={handleSubmit}
-              className="mt-3 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
-            >
-              Explain
-            </button>
+  return (
+    <div className="max-w-3xl mx-auto p-6 bg-white dark:bg-gray-800 rounded-lg shadow-lg">
+      <h1 className="text-3xl font-bold mb-6 text-center">Linux Command Explainer</h1>
+      <div className="mb-6">
+        <input
+          type="text"
+          value={command}
+          onChange={(e) => setCommand(e.target.value)}
+          placeholder="Enter a Linux command (e.g., chsh, ls, grep)"
+          className="w-full p-3 border rounded-lg dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        <button
+          onClick={handleSubmit}
+          className="mt-3 w-full px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+        >
+          Explain
+        </button>
+      </div>
+      {error && <p className="text-red-500 mb-4">{error}</p>}
+      {result && (
+        <div className="space-y-6">
+          <h2 className="text-2xl font-semibold text-blue-600 dark:text-blue-400">{result.name}</h2>
+          <div>
+            <h3 className="text-xl font-medium">Description:</h3>
+            <p className="text-gray-700 dark:text-gray-300">{result.description}</p>
           </div>
-          {error && (
-            <p class="text-red-500 mb-4">{error}</p>
+          {result.analogy && (
+            <div>
+              <h3 className="text-xl font-medium">Analogy:</h3>
+              <p className="text-gray-700 dark:text-gray-300 italic">{result.analogy}</p>
+            </div>
           )}
-          {result && (
-            <div className="space-y-6">
-              <h2 className="text-2xl font-semibold text-blue-600 dark:text-blue-400">{result.name}</h2>
-              <div>
-                <h3 className="text-xl font-medium">Description:</h3>
-                <p className="text-gray-700 dark:text-gray-300">{result.description}</p>
-              </div>
-              {result.analogy && (
-                <div>
-                  <h3 className="text-xl font-medium">Analogy:</h3>
-                  <p className="text-gray-700 dark:text-gray-300 italic">{result.analogy}</p>
-                </div>
-              )}
+          {result.options.length > 0 && (
+            <div>
+              <h3 className="text-xl font-medium">Options:</h3>
+              <ul className="list-disc pl-6 text-gray-700 dark:text-gray-300">
+                {result.options.map((opt, index) => (
+                  <li key={index}>
+                    <code className="font-mono bg-gray-200 dark:bg-gray-600 px-1 rounded">{opt.flag}</code>: {opt.description}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {result.arguments.length > 0 && (
+            <div>
+              <h3 className="text-xl font-medium">Arguments:</h3>
+              <ul className="list-disc pl-6 text-gray-700 dark:text-gray-300">
+                {result.arguments.map((arg, index) => (
+                  <li key={index}>
+                    <code className="font-mono bg-gray-200 dark:bg-gray-600 px-1 rounded">{arg.name}</code>: {arg.description}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default App;
+```
